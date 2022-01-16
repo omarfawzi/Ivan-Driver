@@ -7,6 +7,7 @@ export const initialState = {
   isLoggedIn: false,
   profile: {},
   fcmToken: null,
+  token: null,
 }
 
 // REDUCER
@@ -14,7 +15,8 @@ const authReducer = (state = initialState, action) => {
   switch (action.type) {
     case LOGGED_IN: {
       const { profile } = action
-      return { ...state, isLoggedIn: true, profile }
+      const { token } = action
+      return { ...state, isLoggedIn: true, profile, token }
     }
 
     case PROFILE_UPDATE: {

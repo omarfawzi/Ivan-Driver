@@ -46,7 +46,7 @@ function AuthProvider(props) {
 
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
       // DISPATCH TO REDUCER
-      dispatch({ type: LOGGED_IN, profile })
+      dispatch({ type: LOGGED_IN, profile, token })
     } catch (error) {
       throw new Error(error)
     }

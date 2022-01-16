@@ -9,21 +9,22 @@ import {
 import { PUSHER_APP_KEY, PUSHER_APP_CLUSTER, GOOGLE_API_KEY } from '@env'
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 import { getStatusBarHeight } from 'react-native-status-bar-height'
-import * as SecureStore from 'expo-secure-store'
 import Pusher from 'pusher-js/react-native'
 import AwesomeAlert from 'react-native-awesome-alerts'
 import MapViewDirections from 'react-native-maps-directions'
 import { theme } from '../core/theme'
 import BackButton from '../components/BackButton'
 import TrackingController from '../api/tracking'
-import { BEARER_TOKEN_KEY } from '../providers/auth'
+import { useAuth } from '../providers/auth'
 
 export default function DriverTrackingScreen({ route, navigation }) {
+  const { state } = useAuth()
+
   const [trackingInfo, setTrackingInfo] = useState()
   const [driverLocation, setDriverLocation] = useState()
   const [isLoading, setLoading] = useState(true)
   const { height, width } = Dimensions.get('window')
-  const mapRef = useRef(null)
+  const mapRef = useRef()
   const { ticketId } = route.params
   const trackingController = new TrackingController()
   const [alertMessage, setAlertMessage] = useState({
@@ -44,7 +45,6 @@ export default function DriverTrackingScreen({ route, navigation }) {
       setShowAlert(true)
       setAlertMessage({ isError: true, message: e.data.errors[0] })
     }
-    const token = await SecureStore.getItemAsync(BEARER_TOKEN_KEY)
 
     const PusherClient = new Pusher(PUSHER_APP_KEY, {
       cluster: PUSHER_APP_CLUSTER,
@@ -57,7 +57,7 @@ export default function DriverTrackingScreen({ route, navigation }) {
       authEndpoint: 'https://i-van.co/api/v1/broadcasting/auth',
       auth: {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${state.token}`,
           Accept: 'application/json',
         },
       },
@@ -71,10 +71,12 @@ export default function DriverTrackingScreen({ route, navigation }) {
         latitude: event.latitude,
         longitude: event.longitude,
       })
-      mapRef.current.fitToSuppliedMarkers(['driver', 'station'], {
-        edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-        animated: true,
-      })
+      if (mapRef && mapRef.current) {
+        mapRef.current.fitToSuppliedMarkers(['driver', 'station'], {
+          edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+          animated: true,
+        })
+      }
     })
     setLoading(false)
     return () => {
@@ -107,16 +109,16 @@ export default function DriverTrackingScreen({ route, navigation }) {
         initialRegion={{
           latitude: 29.97811044,
           longitude: 31.11157825,
-          latitudeDelta: 0.06,
+          latitudeDelta: 0.09,
           longitudeDelta:
-            0.06 *
+            0.09 *
             (Dimensions.get('window').width / Dimensions.get('window').height),
         }}
         provider={PROVIDER_GOOGLE}
         style={styles.map}
         ref={mapRef}
         onMapReady={() => {
-          if (trackingInfo) {
+          if (mapRef && mapRef.current) {
             mapRef.current.fitToSuppliedMarkers(['driver', 'station'], {
               edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
               animated: true,
@@ -126,7 +128,7 @@ export default function DriverTrackingScreen({ route, navigation }) {
       >
         {trackingInfo ? (
           <View>
-            <Marker.Animated
+            <Marker
               key="driver"
               identifier="driver"
               title={trackingInfo.driverName}
@@ -134,7 +136,7 @@ export default function DriverTrackingScreen({ route, navigation }) {
                 latitude: driverLocation.latitude,
                 longitude: driverLocation.longitude,
               }}
-              anchor={{ x: 0.4, y: 0.5 }}
+              anchor={{ x: 0.4, y: 0.4 }}
               tracksInfoWindowChanges={false}
             >
               <Image
@@ -142,7 +144,7 @@ export default function DriverTrackingScreen({ route, navigation }) {
                 style={{ width: 50, height: 40, marginBottom: -10 }}
                 resizeMode="stretch"
               />
-            </Marker.Animated>
+            </Marker>
             <Marker
               key="station"
               identifier="station"
@@ -151,7 +153,7 @@ export default function DriverTrackingScreen({ route, navigation }) {
                 latitude: trackingInfo.stationLatitude,
                 longitude: trackingInfo.stationLongitude,
               }}
-              anchor={{ x: 0.4, y: 0.5 }}
+              anchor={{ x: 0.5, y: 0.7 }}
               tracksInfoWindowChanges={false}
             >
               <Image
