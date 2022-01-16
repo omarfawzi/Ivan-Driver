@@ -1,0 +1,58 @@
+{
+  "expo": {
+    "owner": "omarfawzi96",
+    "name": "iVan",
+    "slug": "iVan",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./src/assets/logo.png",
+    "splash": {
+      "image": "./src/assets/logo@2x.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ivan.ivanuser",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "location",
+          "fetch"
+        ],
+        "NSLocationWhenInUseUsageDescription": "The application needs to keep retrieving the user's location to keep the satisfaction rate high by assigning correct drivers to the user."
+      },
+      "config": {
+        "googleMapsApiKey": "AIzaSyBABbRjLZlOLzHuKgdRbznSiq1KQov_kVg"
+      }
+    },
+    "android": {
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "NOTIFICATIONS"
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/logo.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.ivan.ivanuser",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBABbRjLZlOLzHuKgdRbznSiq1KQov_kVg"
+        }
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "description": "",
+    "githubUrl": "https://github.com/omarfawzi/Ivan-user-react-native"
+  }
+}
