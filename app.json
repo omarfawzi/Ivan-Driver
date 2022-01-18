@@ -1,8 +1,8 @@
 {
   "expo": {
     "owner": "omarfawzi96",
-    "name": "iVan",
-    "slug": "iVan",
+    "name": "iVanDriver",
+    "slug": "iVanDriver",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/logo.png",
@@ -20,7 +20,7 @@
     "ios": {
       "googleServicesFile": "./GoogleService-Info.plist",
       "supportsTablet": true,
-      "bundleIdentifier": "com.ivan.ivanuser",
+      "bundleIdentifier": "com.ivan.ivandriver",
       "infoPlist": {
         "UIBackgroundModes": [
           "location",
@@ -36,13 +36,14 @@
       "googleServicesFile": "./google-services.json",
       "permissions": [
         "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
         "NOTIFICATIONS"
       ],
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/logo.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.ivan.ivanuser",
+      "package": "com.ivan.ivandriver",
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBABbRjLZlOLzHuKgdRbznSiq1KQov_kVg"
