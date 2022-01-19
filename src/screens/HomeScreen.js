@@ -94,29 +94,29 @@ export default function HomeScreen({ navigation }) {
   }, [])
   return (
     <Tab.Navigator
-      initialRouteName="Find Ride"
+      initialRouteName="الرحلة"
       screenOptions={{
         tabBarActiveTintColor: theme.colors.secondary,
       }}
     >
       <Tab.Screen
-        name="Find Ride"
+        name="الرحلة"
         component={FindRideScreen}
         options={{
-          tabBarLabel: 'Find Ride',
+          tabBarLabel: 'الرحلة',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="bus" color={color} size={size} />
           ),
         }}
       />
       <Tab.Screen
-        name="Orders"
+        name="التذاكر"
         component={OrdersScreen}
         options={{
-          tabBarLabel: 'Orders',
+          tabBarLabel: 'التذاكر',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
-              name="cart-outline"
+              name="ticket"
               color={color}
               size={size}
             />
@@ -124,10 +124,10 @@ export default function HomeScreen({ navigation }) {
         }}
       />
       <Tab.Screen
-        name="Profile"
+        name="الحساب"
         component={ProfileScreen}
         options={{
-          tabBarLabel: 'Profile',
+          tabBarLabel: 'الحساب',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="account" color={color} size={size} />
           ),

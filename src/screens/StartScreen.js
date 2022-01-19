@@ -25,12 +25,12 @@ export default function StartScreen({ navigation }) {
   return (
     <Background>
       <Logo />
-      <Header>Welcome</Header>
+      <Header>مرحبا بك في iVan</Header>
       <Button
         mode="contained"
         onPress={() => navigation.navigate('LoginScreen')}
       >
-        Login
+        تسجيل الدخول
       </Button>
     </Background>
   )

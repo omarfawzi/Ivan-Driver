@@ -1,10 +1,5 @@
 import React, { useState } from 'react'
-import {
-  StyleSheet,
-  View,
-  ActivityIndicator,
-  Dimensions,
-} from 'react-native'
+import { View, ActivityIndicator, Dimensions, Alert } from 'react-native'
 import Background from '../components/Background'
 import Logo from '../components/Logo'
 import Button from '../components/Button'
@@ -44,14 +39,14 @@ export default function LoginScreen({ navigation }) {
     } catch (error) {
       setLoading(false)
       if (error.data.password) {
-        setPassword({ ...password, error: error.data.password[0] })
+        setPassword({ ...password, error: 'كلمة السر غير صحيحة' })
         return
       }
       if (error.data.mobile) {
-        setMobile({ ...mobile, error: error.data.mobile[0] })
+        setMobile({ ...mobile, error: 'رقم الموبايل غير صحيح' })
         return
       }
-      alert(
+      Alert.alert(
         'Error happened, please check your internet connection and try again.'
       )
     }
@@ -75,9 +70,9 @@ export default function LoginScreen({ navigation }) {
     <Background>
       <BackButton goBack={navigation.goBack} />
       <Logo />
-      <Header>Login</Header>
+      <Header>تسجيل الدخول</Header>
       <TextInput
-        label="Mobile"
+        label="رقم الموبايل"
         returnKeyType="next"
         value={mobile.value}
         onChangeText={(text) => setMobile({ value: text, error: '' })}
@@ -89,7 +84,7 @@ export default function LoginScreen({ navigation }) {
         keyboardType="phone-pad"
       />
       <TextInput
-        label="Password"
+        label="كلمة المرور"
         returnKeyType="done"
         value={password.value}
         onChangeText={(text) => setPassword({ value: text, error: '' })}
@@ -98,7 +93,7 @@ export default function LoginScreen({ navigation }) {
         secureTextEntry
       />
       <Button mode="contained" onPress={onLoginPressed}>
-        Login
+        تسجيل الدخول
       </Button>
     </Background>
   )

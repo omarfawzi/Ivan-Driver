@@ -40,11 +40,12 @@ static void InitializeFlipper(UIApplication *application) {
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
 [FIRApp configure];
+
 #if defined(FB_SONARKIT_ENABLED) && __has_include(<FlipperKit/FlipperClient.h>)
   InitializeFlipper(application);
 #endif
 
-NSDictionary *appProperties = [RNFBMessagingModule addCustomPropsToUserProps:nil withLaunchOptions:launchOptions];
+  NSDictionary *appProperties = [RNFBMessagingModule addCustomPropsToUserProps:nil withLaunchOptions:launchOptions];
 
 // @generated begin react-native-maps-init - expo prebuild (DO NOT MODIFY) sync-516698d47c3d54cf9266bd8eeb819e55c6472c4e
 #if __has_include(<GoogleMaps/GoogleMaps.h>)

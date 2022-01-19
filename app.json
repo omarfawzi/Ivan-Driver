@@ -26,7 +26,7 @@
           "location",
           "fetch"
         ],
-        "NSLocationWhenInUseUsageDescription": "The application needs to keep retrieving the user's location to keep the satisfaction rate high by assigning correct drivers to the user."
+        "NSLocationWhenInUseUsageDescription": "The application needs to keep retrieving the driver's location in background to know if he reached the pickup station or not and proceed to next step (even if the app is in background)."
       },
       "config": {
         "googleMapsApiKey": "AIzaSyBABbRjLZlOLzHuKgdRbznSiq1KQov_kVg"

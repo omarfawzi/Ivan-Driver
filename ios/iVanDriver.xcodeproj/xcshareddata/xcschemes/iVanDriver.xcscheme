@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1310"
+   LastUpgradeVersion = "1130"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "Ivan.app"
-               BlueprintName = "Ivan"
-               ReferencedContainer = "container:Ivan.xcodeproj">
+               BuildableName = "iVanDriver.app"
+               BlueprintName = "iVanDriver"
+               ReferencedContainer = "container:iVanDriver.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "IvanTests.xctest"
-               BlueprintName = "IvanTests"
-               ReferencedContainer = "container:Ivan.xcodeproj">
+               BuildableName = "iVanDriverTests.xctest"
+               BlueprintName = "iVanDriverTests"
+               ReferencedContainer = "container:iVanDriver.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "Ivan.app"
-            BlueprintName = "Ivan"
-            ReferencedContainer = "container:Ivan.xcodeproj">
+            BuildableName = "iVanDriver.app"
+            BlueprintName = "iVanDriver"
+            ReferencedContainer = "container:iVanDriver.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "Ivan.app"
-            BlueprintName = "Ivan"
-            ReferencedContainer = "container:Ivan.xcodeproj">
+            BuildableName = "iVanDriver.app"
+            BlueprintName = "iVanDriver"
+            ReferencedContainer = "container:iVanDriver.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
