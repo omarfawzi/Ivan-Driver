@@ -4,7 +4,7 @@ class NotificationHandler {
   }
 
   handleNotification(remoteMessage) {
-    if (!this.navigator || !remoteMessage.data.type) {
+    if (!this.navigator) {
       return
     }
     this.navigator.navigate('HomeScreen', {
