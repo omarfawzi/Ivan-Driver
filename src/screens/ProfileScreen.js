@@ -59,6 +59,7 @@ export default function ProfileScreen({ navigation }) {
           onChangeText={(text) => setName({ value: text, error: '' })}
           error={!!name.error}
           errorText={name.error}
+          disabled
         />
         <TextInput
           label="رقم الموبايل"

@@ -5,7 +5,7 @@ import messaging from '@react-native-firebase/messaging'
 import ProfileScreen from './ProfileScreen'
 import { theme } from '../core/theme'
 import FindRideScreen from './FindRideScreen'
-import OrdersScreen from './OrdersScreen'
+import TicketsScreen from './TicketsScreen'
 import { useAuth } from '../providers/auth'
 import NotificationHandler from '../handlers/NotificationHandler'
 import AuthController from '../api/auth'
@@ -111,16 +111,13 @@ export default function HomeScreen({ navigation }) {
       />
       <Tab.Screen
         name="التذاكر"
-        component={OrdersScreen}
+        component={TicketsScreen}
         options={{
           tabBarLabel: 'التذاكر',
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons
-              name="ticket"
-              color={color}
-              size={size}
-            />
+            <MaterialCommunityIcons name="ticket" color={color} size={size} />
           ),
+          unmountOnBlur: true,
         }}
       />
       <Tab.Screen

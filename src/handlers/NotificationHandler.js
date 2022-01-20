@@ -8,7 +8,7 @@ class NotificationHandler {
       return
     }
     this.navigator.navigate('HomeScreen', {
-      screen: 'Orders',
+      screen: 'التذاكر',
     })
   }
 }
