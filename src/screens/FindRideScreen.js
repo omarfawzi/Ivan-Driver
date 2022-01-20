@@ -9,10 +9,11 @@ import {
 } from 'react-native'
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 import Geolocation from '@react-native-community/geolocation'
-
 import AwesomeAlert from 'react-native-awesome-alerts'
 import * as Location from 'expo-location'
+import ToggleSwitch from 'toggle-switch-react-native'
 import { theme } from '../core/theme'
+import StatusController from '../api/status'
 
 export default function FindRideScreen({ navigation }) {
   const [alertMessage, setAlertMessage] = useState({
@@ -21,11 +22,21 @@ export default function FindRideScreen({ navigation }) {
   })
   const { height, width } = Dimensions.get('window')
   const [showAlert, setShowAlert] = useState(false)
+  const [active, setActive] = useState(false)
   const [isLoading, setLoading] = useState(false)
   const mapRef = useRef(null)
+  const statusController = new StatusController()
+
+  const toggleStatus = async (isOn) => {
+    if (isOn) {
+      await statusController.activate()
+    } else {
+      await statusController.deactivate()
+    }
+    setActive(isOn)
+  }
 
   useEffect(async () => {
-    setLoading(false)
     await Location.requestForegroundPermissionsAsync()
     Geolocation.getCurrentPosition(
       ({ coords }) => {
@@ -33,14 +44,17 @@ export default function FindRideScreen({ navigation }) {
           mapRef.current.animateToRegion({
             latitude: coords.latitude,
             longitude: coords.longitude,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
+            latitudeDelta: 0.002,
+            longitudeDelta: 0.002,
           })
         }
       },
       () => Alert.alert('تأكد من تفعيل اعدادات موقعك الحالي لتطبيق iVan.'),
       { enableHighAccuracy: true }
     )
+    const status = await statusController.getStatus()
+    setActive(status.active)
+    setLoading(false)
   }, [])
 
   return isLoading ? (
@@ -67,6 +81,19 @@ export default function FindRideScreen({ navigation }) {
         style={styles.map}
         ref={mapRef}
       />
+      <View style={styles.overlayBottom}>
+        <ToggleSwitch
+          isOn={Boolean(active)}
+          onColor="green"
+          offColor="red"
+          label={!active ? 'ابدأ' : 'توقف'}
+          labelStyle={{ color: 'black', fontWeight: 'bold', fontSize: 28 }}
+          size="medium"
+          onToggle={(isOn) => {
+            toggleStatus(isOn)
+          }}
+        />
+      </View>
       <AwesomeAlert
         show={showAlert}
         showProgress={false}
@@ -109,15 +136,26 @@ const styles = StyleSheet.create({
   },
   overlayTop: {
     position: 'absolute',
-    top: 0,
-    width: Dimensions.get('window').width - 60,
+    top: 10,
+    width: Dimensions.get('window').width - 30,
     alignItems: 'center',
   },
   overlayBottom: {
     position: 'absolute',
-    bottom: 0,
-    width: Dimensions.get('window').width - 60,
+    bottom: 40,
+    width: 200,
     alignItems: 'center',
+    flex: 1,
+    shadowColor: '#00000021',
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.37,
+    shadowRadius: 7.49,
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 30,
   },
   input: {
     width: Dimensions.get('window').width - 70,

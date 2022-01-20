@@ -7,7 +7,6 @@ import {
   StartScreen,
   LoginScreen,
   HomeScreen,
-  TicketScreen,
   LoadingScreen,
 } from './src/screens'
 import AuthProvider from './src/providers/auth'
@@ -31,7 +30,6 @@ export default function App() {
             <Stack.Screen name="StartScreen" component={StartScreen} />
             <Stack.Screen name="LoginScreen" component={LoginScreen} />
             <Stack.Screen name="HomeScreen" component={HomeScreen} />
-            <Stack.Screen name="TicketScreen" component={TicketScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </Provider>

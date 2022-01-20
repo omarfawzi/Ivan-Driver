@@ -125,7 +125,7 @@ export default function TicketsScreen({ navigation }) {
               source={require('../assets/request.png')}
             />
             <View style={styles.cardContent}>
-              <Text style={styles.name}>رقم التذكرة #{item.id}</Text>
+              <Text style={styles.name}>رقم التذكرة {item.id}#</Text>
               <Text style={styles.other}>
                 الحالة: {statusTranslator(item.status)}
               </Text>
@@ -214,14 +214,14 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   name: {
-    fontSize: 18,
+    fontSize: 12,
     alignSelf: 'flex-end',
     color: theme.colors.primary,
     fontWeight: 'bold',
     paddingBottom: 10,
   },
   other: {
-    fontSize: 14,
+    fontSize: 12,
     alignSelf: 'flex-end',
     fontWeight: 'bold',
     paddingBottom: 10,
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontWeight: 'bold',
-    fontSize: 12,
+    fontSize: 10,
     // lineHeight: 26,
   },
   locationButton: {
