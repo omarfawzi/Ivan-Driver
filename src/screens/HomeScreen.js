@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
+import { View, Alert } from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import messaging from '@react-native-firebase/messaging'
+import AwesomeAlert from 'react-native-awesome-alerts'
 import ProfileScreen from './ProfileScreen'
 import { theme } from '../core/theme'
 import FindRideScreen from './FindRideScreen'
@@ -14,6 +16,11 @@ const Tab = createBottomTabNavigator()
 
 export default function HomeScreen({ navigation }) {
   const { getAuthState, handleFcmToken, state } = useAuth()
+  const [showAlert, setShowAlert] = useState(false)
+  const [alertMessage, setAlertMessage] = useState({
+    isError: false,
+    message: null,
+  })
   const authController = new AuthController()
 
   async function redirectIfNotAuthenticated() {
@@ -63,25 +70,39 @@ export default function HomeScreen({ navigation }) {
   }, [])
   useEffect(() => {
     messaging().onMessage(async (remoteMessage) => {
-      new NotificationHandler(navigator.current).handleNotification(
-        remoteMessage
-      )
-      alert(remoteMessage.notification.body)
+      // new NotificationHandler(navigator.current).handleNotification(
+      //   remoteMessage
+      // )
+      setShowAlert(true)
+      setAlertMessage({
+        isError: false,
+        message: remoteMessage.notification.body,
+      })
     })
 
     messaging().onNotificationOpenedApp((remoteMessage) => {
-      new NotificationHandler(navigator.current).handleNotification(
-        remoteMessage
-      )
+      // new NotificationHandler(navigator.current).handleNotification(
+      //   remoteMessage
+      // )
+      setShowAlert(true)
+      setAlertMessage({
+        isError: false,
+        message: remoteMessage.notification.body,
+      })
     })
 
     messaging()
       .getInitialNotification()
       .then((remoteMessage) => {
         if (remoteMessage) {
-          new NotificationHandler(navigator.current).handleNotification(
-            remoteMessage
-          )
+          // new NotificationHandler(navigator.current).handleNotification(
+          //   remoteMessage
+          // )
+          setShowAlert(true)
+          setAlertMessage({
+            isError: false,
+            message: remoteMessage.notification.body,
+          })
         }
       })
 
@@ -93,43 +114,76 @@ export default function HomeScreen({ navigation }) {
     configurePushNotification()
   }, [])
   return (
-    <Tab.Navigator
-      initialRouteName="الرحلة"
-      screenOptions={{
-        tabBarActiveTintColor: theme.colors.secondary,
-      }}
-    >
-      <Tab.Screen
-        name="الرحلة"
-        component={FindRideScreen}
-        options={{
-          tabBarLabel: 'الرحلة',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="bus" color={color} size={size} />
-          ),
+    <View style={{ flex: 1 }}>
+      <Tab.Navigator
+        initialRouteName="الرحلة"
+        screenOptions={{
+          tabBarActiveTintColor: theme.colors.secondary,
+        }}
+      >
+        <Tab.Screen
+          name="الرحلة"
+          component={FindRideScreen}
+          options={{
+            tabBarLabel: 'الرحلة',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="bus" color={color} size={size} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="التذاكر"
+          component={TicketsScreen}
+          options={{
+            tabBarLabel: 'التذاكر',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="ticket" color={color} size={size} />
+            ),
+            unmountOnBlur: true,
+          }}
+        />
+        <Tab.Screen
+          name="الحساب"
+          component={ProfileScreen}
+          options={{
+            tabBarLabel: 'الحساب',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons
+                name="account"
+                color={color}
+                size={size}
+              />
+            ),
+          }}
+        />
+      </Tab.Navigator>
+      <AwesomeAlert
+        show={showAlert}
+        showProgress={false}
+        title="تنويه"
+        message={alertMessage.message}
+        closeOnHardwareBackPress={false}
+        showConfirmButton
+        confirmText="OK"
+        confirmButtonStyle={{ fontWeight: 'bold' }}
+        titleStyle={{
+          color: theme.colors.primary,
+          fontWeight: 'bold',
+        }}
+        messageStyle={{
+          fontWeight: 'bold',
+          fontSize: 15,
+        }}
+        cancelButtonColor="red"
+        confirmButtonColor={theme.colors.primary}
+        closeOnTouchOutside={false}
+        onConfirmPressed={() => {
+          setShowAlert(false)
+        }}
+        onCancelPressed={() => {
+          setShowAlert(false)
         }}
       />
-      <Tab.Screen
-        name="التذاكر"
-        component={TicketsScreen}
-        options={{
-          tabBarLabel: 'التذاكر',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="ticket" color={color} size={size} />
-          ),
-          unmountOnBlur: true,
-        }}
-      />
-      <Tab.Screen
-        name="الحساب"
-        component={ProfileScreen}
-        options={{
-          tabBarLabel: 'الحساب',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account" color={color} size={size} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
+    </View>
   )
 }
