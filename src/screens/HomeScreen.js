@@ -39,6 +39,7 @@ export default function HomeScreen({ navigation }) {
   const orderController = new OrderController()
 
   const onConfirmButtonPressed = async () => {
+    setShowAlert(false)
     if (!alertMessage.isError && notificationData.type === 'driver_selection') {
       await orderController
         .accept(notificationData.orderId)
@@ -50,7 +51,6 @@ export default function HomeScreen({ navigation }) {
           setAlertMessage({ message: err.data.errors[0], isError: true })
         })
     }
-    setShowAlert(false)
   }
 
   const onCancelButtonPressed = async () => {
