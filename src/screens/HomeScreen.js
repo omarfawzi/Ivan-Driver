@@ -30,6 +30,7 @@ export default function HomeScreen({ navigation }) {
   const [showAlert, setShowAlert] = useState(false)
   const [alertMessage, setAlertMessage] = useState({
     message: null,
+    isError: false,
   })
   const [notificationData, setNotificationData] = useState({})
   const [mapData, setMapData] = useState({})
@@ -38,9 +39,16 @@ export default function HomeScreen({ navigation }) {
   const orderController = new OrderController()
 
   const onConfirmButtonPressed = async () => {
-    if (alertMessage && notificationData.type === 'driver_selection') {
-      await orderController.accept(notificationData.orderId)
-      onStationChange(notificationData)
+    if (!alertMessage.isError && notificationData.type === 'driver_selection') {
+      await orderController
+        .accept(notificationData.orderId)
+        .then(() => {
+          onStationChange(notificationData)
+        })
+        .catch((err) => {
+          setShowAlert(true)
+          setAlertMessage({ message: err.data.errors[0], isError: true })
+        })
     }
     setShowAlert(false)
   }
@@ -198,6 +206,7 @@ export default function HomeScreen({ navigation }) {
       setNotificationData(remoteMessage.data)
       setAlertMessage({
         message: remoteMessage.notification.body,
+        isError: false
       })
     })
 
@@ -206,6 +215,7 @@ export default function HomeScreen({ navigation }) {
       setNotificationData(remoteMessage.data)
       setAlertMessage({
         message: remoteMessage.notification.body,
+        isError: false
       })
     })
 
@@ -217,6 +227,7 @@ export default function HomeScreen({ navigation }) {
           setNotificationData(remoteMessage.data)
           setAlertMessage({
             message: remoteMessage.notification.body,
+            isError: false
           })
         }
       })
