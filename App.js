@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import { Provider } from 'react-native-paper'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
@@ -14,12 +14,10 @@ import AuthProvider from './src/providers/auth'
 const Stack = createStackNavigator()
 
 export default function App() {
-  const navigator = useRef()
-
   return (
     <AuthProvider>
       <Provider theme={theme}>
-        <NavigationContainer ref={navigator}>
+        <NavigationContainer>
           <Stack.Navigator
             initialRouteName="LoadingScreen"
             screenOptions={{

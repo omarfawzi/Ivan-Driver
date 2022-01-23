@@ -5,26 +5,22 @@ import {
   View,
   Image,
   ActivityIndicator,
-  Alert,
+  TouchableOpacity,
+  Linking,
 } from 'react-native'
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
-import Geolocation from '@react-native-community/geolocation'
-import AwesomeAlert from 'react-native-awesome-alerts'
-import * as Location from 'expo-location'
 import ToggleSwitch from 'toggle-switch-react-native'
+import MapViewDirections from 'react-native-maps-directions'
+import { GOOGLE_API_KEY } from '@env'
+import Entypo from 'react-native-vector-icons/Entypo'
 import { theme } from '../core/theme'
 import StatusController from '../api/status'
 
-export default function FindRideScreen({ navigation }) {
-  const [alertMessage, setAlertMessage] = useState({
-    isError: false,
-    message: null,
-  })
+export default function FindRideScreen({ navigation, mapData }) {
   const { height, width } = Dimensions.get('window')
-  const [showAlert, setShowAlert] = useState(false)
   const [active, setActive] = useState(false)
   const [isLoading, setLoading] = useState(false)
-  const mapRef = useRef(null)
+  const mapRef = useRef()
   const statusController = new StatusController()
 
   const toggleStatus = async (isOn) => {
@@ -37,21 +33,6 @@ export default function FindRideScreen({ navigation }) {
   }
 
   useEffect(async () => {
-    await Location.requestForegroundPermissionsAsync()
-    Geolocation.getCurrentPosition(
-      ({ coords }) => {
-        if (mapRef) {
-          mapRef.current.animateToRegion({
-            latitude: coords.latitude,
-            longitude: coords.longitude,
-            latitudeDelta: 0.002,
-            longitudeDelta: 0.002,
-          })
-        }
-      },
-      () => Alert.alert('تأكد من تفعيل اعدادات موقعك الحالي لتطبيق iVan.'),
-      { enableHighAccuracy: true }
-    )
     const status = await statusController.getStatus()
     setActive(status.active)
     setLoading(false)
@@ -79,8 +60,69 @@ export default function FindRideScreen({ navigation }) {
         maxZoomLevel={20}
         provider={PROVIDER_GOOGLE}
         style={styles.map}
+        initialRegion={mapData.driver ? mapData.driver.location : null}
         ref={mapRef}
-      />
+      >
+        {mapData.station ? (
+          <Marker
+            key="station"
+            identifier="station"
+            title={mapData.station.name}
+            coordinate={{
+              latitude: mapData.station.latitude,
+              longitude: mapData.station.longitude,
+            }}
+            anchor={{ x: 0.4, y: 0.5 }}
+            tracksInfoWindowChanges={false}
+          >
+            <Image
+              source={require('../assets/bus-stop-6.png')}
+              style={{ width: 90, height: 90, marginBottom: -10 }}
+              resizeMode="stretch"
+            />
+          </Marker>
+        ) : null}
+        {mapData.station && mapData.driver ? (
+          <MapViewDirections
+            origin={mapData.driver.location}
+            destination={mapData.station}
+            apikey={GOOGLE_API_KEY}
+            precision="high"
+            strokeColor={theme.colors.secondary}
+            strokeWidth={5}
+            onReady={() => {
+              mapRef.current.fitToCoordinates(
+                [mapData.driver.location, mapData.station],
+                {
+                  edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+                  animated: true,
+                }
+              )
+            }}
+          />
+        ) : null}
+      </MapView>
+      {mapData.station && mapData.driver ? (
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            top: 15,
+            zIndex: 1,
+            right: 25,
+          }}
+          onPress={() =>
+            Linking.openURL(
+              `google.navigation:q=${mapData.station.latitude}+${mapData.station.longitude}`
+            )
+          }
+        >
+          <Image
+            source={require('../assets/gmaps.jpg')}
+            style={{ width: 40, height: 40 }}
+            resizeMode="stretch"
+          />
+        </TouchableOpacity>
+      ) : null}
       <View style={styles.overlayBottom}>
         <ToggleSwitch
           isOn={Boolean(active)}
@@ -94,29 +136,6 @@ export default function FindRideScreen({ navigation }) {
           }}
         />
       </View>
-      <AwesomeAlert
-        show={showAlert}
-        showProgress={false}
-        title={alertMessage.isError ? 'Error' : 'Info'}
-        message={alertMessage.message}
-        closeOnHardwareBackPress={false}
-        showConfirmButton
-        confirmText="OK"
-        confirmButtonStyle={{ fontWeight: 'bold' }}
-        titleStyle={{
-          color: alertMessage.isError ? 'red' : theme.colors.primary,
-          fontWeight: 'bold',
-        }}
-        messageStyle={{
-          fontWeight: 'bold',
-          fontSize: 15,
-        }}
-        confirmButtonColor={alertMessage.isError ? 'red' : theme.colors.primary}
-        closeOnTouchOutside={false}
-        onConfirmPressed={() => {
-          setShowAlert(false)
-        }}
-      />
     </View>
   )
 }

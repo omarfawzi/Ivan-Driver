@@ -11,9 +11,9 @@ import reducer, {
 } from './reducer'
 
 // CONFIG KEYS [Storage Keys]===================================
-export const BEARER_TOKEN_KEY = 'ivan_customer_access_token'
-export const BEARER_FCM_TOKEN_KEY = 'ivan_customer_fcm_token'
-export const PROFILE_KEY = 'ivan_customer_profile'
+export const BEARER_TOKEN_KEY = 'ivan_driver_access_token'
+export const BEARER_FCM_TOKEN_KEY = 'ivan_driver_fcm_token'
+export const PROFILE_KEY = 'ivan_driver_profile'
 
 // CONTEXT ===================================
 const AuthContext = React.createContext()
