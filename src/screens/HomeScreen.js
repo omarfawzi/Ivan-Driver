@@ -17,7 +17,7 @@ import OrderController from '../api/orders'
 const Tab = createBottomTabNavigator()
 
 export default function HomeScreen({ navigation }) {
-  const [isLoading, setLoading] = useState(false)
+  const [isLoading, setLoading] = useState(true)
   const { height, width } = Dimensions.get('window')
   const { getAuthState, handleFcmToken, state } = useAuth()
   const [showAlert, setShowAlert] = useState(false)
@@ -25,7 +25,6 @@ export default function HomeScreen({ navigation }) {
     message: null,
   })
   const [notificationData, setNotificationData] = useState({})
-
   const [mapData, setMapData] = useState({})
 
   const authController = new AuthController()
@@ -34,17 +33,7 @@ export default function HomeScreen({ navigation }) {
   const onConfirmButtonPressed = async () => {
     if (alertMessage && notificationData.type === 'driver_selection') {
       await orderController.accept(notificationData.orderId)
-      setMapData({
-        ...mapData,
-        station: {
-          name: notificationData.stopName,
-          latitude: parseFloat(notificationData.latitude),
-          longitude: parseFloat(notificationData.longitude),
-        },
-        order: {
-          id: notificationData.orderId,
-        },
-      })
+      onStationChange(notificationData)
     }
     setShowAlert(false)
   }
@@ -54,6 +43,29 @@ export default function HomeScreen({ navigation }) {
       await orderController.deny(notificationData.orderId)
     }
     setShowAlert(false)
+  }
+
+  function onStationChange(station) {
+    if (station) {
+      setMapData((prevState) => {
+        return {
+          ...prevState,
+          station: {
+            name: station.stopName,
+            latitude: parseFloat(station.latitude),
+            longitude: parseFloat(station.longitude),
+            waypoints: station.waypoints ? station.waypoints : '',
+          },
+        }
+      })
+    } else {
+      setMapData((prevState) => {
+        return {
+          ...prevState,
+          station: undefined,
+        }
+      })
+    }
   }
 
   async function redirectIfNotAuthenticated() {
@@ -101,27 +113,49 @@ export default function HomeScreen({ navigation }) {
   useEffect(async () => {
     await redirectIfNotAuthenticated(navigation)
     await Location.requestForegroundPermissionsAsync()
-    Geolocation.getCurrentPosition(
-      ({ coords }) => {
-        setMapData({
-          ...mapData,
-          driver: {
-            location: {
-              ...coords,
-              latitudeDelta: 0.002,
-              longitudeDelta: 0.002,
+    await Geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        setMapData((prevState) => {
+          return {
+            ...prevState,
+            driver: {
+              location: {
+                ...coords,
+                latitudeDelta: 0.002,
+                longitudeDelta: 0.002,
+              },
             },
-          },
+          }
         })
       },
       () => Alert.alert('تأكد من تفعيل اعدادات موقعك الحالي لتطبيق iVan.'),
       { enableHighAccuracy: true }
     )
 
-    await configurePushNotification()
+    Geolocation.watchPosition(
+      (position) => {
+        setMapData((prevState) => {
+          return {
+            ...prevState,
+            driver: {
+              location: {
+                ...position.coords,
+                latitudeDelta: 0.002,
+                longitudeDelta: 0.002,
+              },
+            },
+          }
+        })
+      },
+      (error) => Alert.alert(JSON.stringify(error)),
+      {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        distanceFilter: 10,
+      }
+    )
 
     messaging().onMessage(async (remoteMessage) => {
-      console.log(remoteMessage)
       setShowAlert(true)
       setNotificationData(remoteMessage.data)
       setAlertMessage({
@@ -130,7 +164,6 @@ export default function HomeScreen({ navigation }) {
     })
 
     messaging().onNotificationOpenedApp((remoteMessage) => {
-      console.log(remoteMessage)
       setShowAlert(true)
       setNotificationData(remoteMessage.data)
       setAlertMessage({
@@ -142,7 +175,6 @@ export default function HomeScreen({ navigation }) {
       .getInitialNotification()
       .then((remoteMessage) => {
         if (remoteMessage) {
-          console.log(remoteMessage)
           setShowAlert(true)
           setNotificationData(remoteMessage.data)
           setAlertMessage({
@@ -155,6 +187,11 @@ export default function HomeScreen({ navigation }) {
     // you may need to get the APNs token instead for iOS:
     // if(Platform.OS == 'ios') { messaging().getAPNSToken().then(token => { return saveTokenToDatabase(token); }); }
 
+    await configurePushNotification()
+    setLoading(false)
+    return () => {
+      setMapData({})
+    }
     // Listen to whether the token changes
   }, [])
   return isLoading ? (
@@ -179,19 +216,25 @@ export default function HomeScreen({ navigation }) {
       >
         <Tab.Screen
           name="الرحلة"
-          children={() => <FindRideScreen mapData={mapData} />}
+          children={() => (
+            <FindRideScreen
+              mapData={mapData}
+              onStationChange={onStationChange}
+            />
+          )}
           // component={FindRideScreen}
           options={{
             tabBarLabel: 'الرحلة',
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="bus" color={color} size={size} />
             ),
+            unmountOnBlur: true,
           }}
         />
         <Tab.Screen
           mapData={mapData}
           name="التذاكر"
-          component={TicketsScreen}
+          children={() => <TicketsScreen mapData={mapData} />}
           options={{
             tabBarLabel: 'التذاكر',
             tabBarIcon: ({ color, size }) => (

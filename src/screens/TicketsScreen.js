@@ -12,15 +12,19 @@ import {
   ScrollView,
 } from 'react-native'
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
+import { getPreciseDistance } from 'geolib'
 import { theme } from '../core/theme'
 import { useAuth } from '../providers/auth'
 import TicketController from '../api/tickets'
 
-export default function TicketsScreen({ navigation }) {
+const DISTANCE_LIMIT_IN_METERS = 100
+
+export default function TicketsScreen({ mapData }) {
   const [isLoading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const { height, width } = Dimensions.get('window')
-  const [tickets, setTickets] = useState([])
+  const [tickets, setTickets] = useState(null)
+  const [pickUpStation, setPickUpStation] = useState(null)
   const { handleLogout } = useAuth()
 
   const ticketController = new TicketController()
@@ -37,8 +41,18 @@ export default function TicketsScreen({ navigation }) {
 
   const getTickets = async () => {
     const result = await ticketController.getTickets()
-    setTickets(result)
+    if (result && result.tickets) {
+      setTickets(result.tickets)
+    } else {
+      setTickets([])
+    }
+    if (result && result.pickUpStation) {
+      setPickUpStation(result.pickUpStation)
+    } else {
+      setPickUpStation(null)
+    }
     setLoading(false)
+    return result
   }
 
   const collectTicket = async (ticketId) => {
@@ -68,10 +82,16 @@ export default function TicketsScreen({ navigation }) {
     setRefreshing(false)
   }
 
+  const isCloseToPickupStation = (currentLocation, station) => {
+    return (
+      getPreciseDistance(currentLocation, station) <= DISTANCE_LIMIT_IN_METERS
+    )
+  }
+
   useEffect(() => {
     getTickets()
     return () => {
-      setTickets([])
+      setTickets(null)
     }
   }, [])
 
@@ -86,7 +106,7 @@ export default function TicketsScreen({ navigation }) {
     >
       <ActivityIndicator size="large" color={theme.colors.primary} />
     </View>
-  ) : tickets.length === 0 ? (
+  ) : !tickets || tickets.length === 0 ? (
     <ScrollView
       refreshControl={
         <RefreshControl
@@ -148,21 +168,35 @@ export default function TicketsScreen({ navigation }) {
                   <MaterialCommunityIcon size={20} name="close" />
                   <Text style={styles.buttonText}>رفض التذكرة</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={() => {
-                    if (item.status === 'issued') {
-                      confirmTicket(item.id)
-                    } else {
+                {item.status === 'confirmed' ? (
+                  <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => {
                       collectTicket(item.id)
-                    }
-                  }}
-                >
-                  <MaterialCommunityIcon size={20} name="check" />
-                  <Text style={styles.buttonText}>
-                    {item.status === 'issued' ? 'تأكيد الركوب' : 'تأكيد النزول'}
-                  </Text>
-                </TouchableOpacity>
+                    }}
+                  >
+                    <MaterialCommunityIcon size={20} name="check" />
+                    <Text style={styles.buttonText}>تأكيد النزول</Text>
+                  </TouchableOpacity>
+                ) : null}
+                {mapData &&
+                mapData.driver &&
+                pickUpStation &&
+                isCloseToPickupStation(
+                  mapData.driver.location,
+                  pickUpStation
+                ) &&
+                item.status === 'issued' ? (
+                  <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => {
+                      confirmTicket(item.id)
+                    }}
+                  >
+                    <MaterialCommunityIcon size={20} name="check" />
+                    <Text style={styles.buttonText}>تأكيد الركوب</Text>
+                  </TouchableOpacity>
+                ) : null}
               </View>
             </View>
           </TouchableOpacity>

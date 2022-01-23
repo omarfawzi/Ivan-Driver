@@ -12,16 +12,17 @@ import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 import ToggleSwitch from 'toggle-switch-react-native'
 import MapViewDirections from 'react-native-maps-directions'
 import { GOOGLE_API_KEY } from '@env'
-import Entypo from 'react-native-vector-icons/Entypo'
 import { theme } from '../core/theme'
 import StatusController from '../api/status'
+import RouteController from '../api/routes'
 
-export default function FindRideScreen({ navigation, mapData }) {
+export default function FindRideScreen({ mapData, onStationChange }) {
   const { height, width } = Dimensions.get('window')
   const [active, setActive] = useState(false)
   const [isLoading, setLoading] = useState(false)
   const mapRef = useRef()
   const statusController = new StatusController()
+  const routeController = new RouteController()
 
   const toggleStatus = async (isOn) => {
     if (isOn) {
@@ -32,9 +33,23 @@ export default function FindRideScreen({ navigation, mapData }) {
     setActive(isOn)
   }
 
+  const onMapsPress = (station) => {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${station.latitude},${station.longitude}&travelmode=driving&waypoints=${station.waypoints}`
+    Linking.openURL(url)
+  }
+
   useEffect(async () => {
     const status = await statusController.getStatus()
     setActive(status.active)
+    const nextRoute = await routeController.nextRoute()
+    if (Object.keys(nextRoute).length > 0) {
+      onStationChange(nextRoute)
+    } else {
+      onStationChange(null)
+      if (mapRef && mapData && mapData.driver) {
+        mapRef.current.animateToRegion(mapData.driver.location)
+      }
+    }
     setLoading(false)
   }, [])
 
@@ -110,11 +125,9 @@ export default function FindRideScreen({ navigation, mapData }) {
             zIndex: 1,
             right: 25,
           }}
-          onPress={() =>
-            Linking.openURL(
-              `google.navigation:q=${mapData.station.latitude}+${mapData.station.longitude}`
-            )
-          }
+          onPress={() => {
+            onMapsPress(mapData.station)
+          }}
         >
           <Image
             source={require('../assets/gmaps.jpg')}
