@@ -34,9 +34,12 @@ export default function FindRideScreen({ mapData, onStationChange }) {
   }
 
   const onMapsPress = (station) => {
-    const waypoints = station.waypoints
-      .map((e) => e.latitude + ',' + e.longitude)
-      .join('|')
+    let waypoints = ''
+    if (station.waypoints) {
+      waypoints = station.waypoints
+        .map((e) => e.latitude + ',' + e.longitude)
+        .join('|')
+    }
     const url = `https://www.google.com/maps/dir/?api=1&destination=${station.latitude},${station.longitude}&travelmode=driving&waypoints=${waypoints}`
 
     Linking.openURL(url)

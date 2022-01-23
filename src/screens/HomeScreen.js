@@ -61,7 +61,7 @@ export default function HomeScreen({ navigation }) {
             name: station.stopName,
             latitude: parseFloat(station.latitude),
             longitude: parseFloat(station.longitude),
-            waypoints: station.waypoints ? station.waypoints : '',
+            waypoints: station.waypoints ? station.waypoints : [],
           },
         }
       })
