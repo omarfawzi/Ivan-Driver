@@ -85,5 +85,7 @@
     <string>Light</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
+    <key>NSMotionUsageDescription</key>
+    <string>App requires motion tracking</string>
   </dict>
 </plist>

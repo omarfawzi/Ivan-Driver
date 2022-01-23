@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from 'react'
-import { View, Alert, ActivityIndicator, Dimensions } from 'react-native'
+import {
+  View,
+  Alert,
+  ActivityIndicator,
+  Dimensions,
+  Platform,
+} from 'react-native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import messaging from '@react-native-firebase/messaging'
 import AwesomeAlert from 'react-native-awesome-alerts'
 import * as Location from 'expo-location'
 import Geolocation from '@react-native-community/geolocation'
+import BackgroundGeolocation from '@mauron85/react-native-background-geolocation'
 import ProfileScreen from './ProfileScreen'
 import { theme } from '../core/theme'
 import FindRideScreen from './FindRideScreen'
@@ -77,6 +84,37 @@ export default function HomeScreen({ navigation }) {
     } catch (e) {
       navigation.navigate('StartScreen')
     }
+  }
+
+  const configureBackgroundLocation = () => {
+    BackgroundGeolocation.configure({
+      desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
+      stationaryRadius: 50,
+      distanceFilter: 100,
+      debug: false,
+      startOnBoot: false,
+      stopOnTerminate: false,
+      locationProvider:
+        Platform.OS === 'android'
+          ? BackgroundGeolocation.ACTIVITY_PROVIDER
+          : BackgroundGeolocation.DISTANCE_FILTER_PROVIDER,
+      interval: 60 * 1000,
+      fastestInterval: 60 * 1000,
+      activitiesInterval: 60 * 1000,
+      notificationsEnabled: false,
+      stopOnStillActivity: false,
+      url: 'https://i-van.co/api/v1/drivers/location',
+      httpHeaders: {
+        Authorization: `Bearer ${state.token}`,
+      },
+      postTemplate: {
+        latitude: '@latitude',
+        longitude: '@longitude',
+      },
+      maxLocations: 1,
+    })
+
+    BackgroundGeolocation.start()
   }
 
   const configurePushNotification = async () => {
@@ -188,9 +226,14 @@ export default function HomeScreen({ navigation }) {
     // if(Platform.OS == 'ios') { messaging().getAPNSToken().then(token => { return saveTokenToDatabase(token); }); }
 
     await configurePushNotification()
+    configureBackgroundLocation()
+
     setLoading(false)
     return () => {
       setMapData({})
+      BackgroundGeolocation.events.forEach((event) =>
+        BackgroundGeolocation.removeAllListeners(event)
+      )
     }
     // Listen to whether the token changes
   }, [])
