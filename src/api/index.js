@@ -5,4 +5,4 @@ const instance = axios.create({
   baseURL: `${BASE_URL}/${API_V1_PREFIX}/`,
 })
 
-export default instance
+module.exports = instance

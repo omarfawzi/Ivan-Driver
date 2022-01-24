@@ -38,17 +38,15 @@ export default function LoginScreen({ navigation }) {
       setLoading(false)
     } catch (error) {
       setLoading(false)
-      if (error.data.password) {
+      if (error.data && error.data.password) {
         setPassword({ ...password, error: 'كلمة السر غير صحيحة' })
         return
       }
-      if (error.data.mobile) {
+      if (error.data && error.data.mobile) {
         setMobile({ ...mobile, error: 'رقم الموبايل غير صحيح' })
         return
       }
-      Alert.alert(
-        'Error happened, please check your internet connection and try again.'
-      )
+      Alert.alert('حدث خطأ الرجاء التأكد من اتصالك بالانترنت.')
     }
   }
 

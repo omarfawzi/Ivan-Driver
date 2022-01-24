@@ -8,12 +8,14 @@ import reducer, {
   LOGGED_OUT,
   PROFILE_UPDATE,
   FCM_TOKEN_UPDATE,
+  ACTIVE_STATUS,
 } from './reducer'
 
 // CONFIG KEYS [Storage Keys]===================================
 export const BEARER_TOKEN_KEY = 'ivan_driver_access_token'
 export const BEARER_FCM_TOKEN_KEY = 'ivan_driver_fcm_token'
 export const PROFILE_KEY = 'ivan_driver_profile'
+export const ACTIVE_STATUS_KEY = 'ivan_driver_active'
 
 // CONTEXT ===================================
 const AuthContext = React.createContext()
@@ -65,6 +67,20 @@ function AuthProvider(props) {
     }
   }
 
+  const handleActiveStatus = async (active) => {
+    try {
+      // STORE DATA
+      await SecureStore.setItemAsync(
+        ACTIVE_STATUS_KEY,
+        JSON.stringify({ active })
+      )
+      // DISPATCH TO REDUCER
+      dispatch({ type: ACTIVE_STATUS, active })
+    } catch (error) {
+      throw new Error(error)
+    }
+  }
+
   const handleProfileUpdate = async (profile) => {
     try {
       // STORE DATA
@@ -100,7 +116,8 @@ function AuthProvider(props) {
       handleLogin,
       handleLogout,
       handleProfileUpdate,
-      handleFcmToken
+      handleFcmToken,
+      handleActiveStatus,
     }
   }, [state])
 

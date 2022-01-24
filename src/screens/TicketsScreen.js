@@ -25,6 +25,7 @@ export default function TicketsScreen({ mapData }) {
   const { height, width } = Dimensions.get('window')
   const [tickets, setTickets] = useState(null)
   const [pickUpStation, setPickUpStation] = useState(null)
+  const [allConfirmed, setAllConfirmed] = useState(false)
   const { handleLogout } = useAuth()
 
   const ticketController = new TicketController()
@@ -43,6 +44,13 @@ export default function TicketsScreen({ mapData }) {
     const result = await ticketController.getTickets()
     if (result && result.tickets) {
       setTickets(result.tickets)
+      let confirmed = true
+      result.tickets.forEach((ticket) => {
+        if (ticket.status === 'issued') {
+          confirmed = false
+        }
+      })
+      setAllConfirmed(confirmed)
     } else {
       setTickets([])
     }
@@ -92,6 +100,9 @@ export default function TicketsScreen({ mapData }) {
     getTickets()
     return () => {
       setTickets(null)
+      setPickUpStation(null)
+      setLoading(true)
+      setRefreshing(false)
     }
   }, [])
 
@@ -168,9 +179,12 @@ export default function TicketsScreen({ mapData }) {
                   <MaterialCommunityIcon size={20} name="close" />
                   <Text style={styles.buttonText}>رفض التذكرة</Text>
                 </TouchableOpacity>
-                {item.status === 'confirmed' ? (
+                {allConfirmed && item.status === 'confirmed' ? (
                   <TouchableOpacity
-                    style={styles.button}
+                    style={{
+                      ...styles.button,
+                      backgroundColor: theme.colors.primary,
+                    }}
                     onPress={() => {
                       collectTicket(item.id)
                     }}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { ActivityIndicator, Dimensions, ScrollView, View } from 'react-native'
+import BackgroundGeolocation from '@mauron85/react-native-background-geolocation'
 import Background from '../components/Background'
 import Logo from '../components/Logo'
 import TextInput from '../components/TextInput'
@@ -21,14 +22,14 @@ export default function ProfileScreen({ navigation }) {
   })
 
   const onLogoutPressed = async () => {
+    setLoading(true)
     try {
       await new AuthController().logout()
     } catch (error) {}
     try {
       await handleLogout()
-
+      await BackgroundGeolocation.stop()
       setLoading(false)
-
       navigation.reset({
         index: 0,
         routes: [{ name: 'StartScreen' }],

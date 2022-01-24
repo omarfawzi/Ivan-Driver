@@ -54,7 +54,7 @@ export default function HomeScreen({ navigation }) {
   }
 
   const onCancelButtonPressed = async () => {
-    if (alertMessage && notificationData.type === 'driver_selection') {
+    if (!alertMessage.isError && notificationData.type === 'driver_selection') {
       await orderController.deny(notificationData.orderId)
     }
     setShowAlert(false)
@@ -99,6 +99,8 @@ export default function HomeScreen({ navigation }) {
       desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
       stationaryRadius: 50,
       distanceFilter: 100,
+      notificationTitle: 'iVan Location Task',
+      notificationText: 'Running...',
       debug: false,
       startOnBoot: false,
       stopOnTerminate: false,
@@ -159,7 +161,7 @@ export default function HomeScreen({ navigation }) {
   useEffect(async () => {
     await redirectIfNotAuthenticated(navigation)
     await Location.requestForegroundPermissionsAsync()
-    await Geolocation.getCurrentPosition(
+    Geolocation.getCurrentPosition(
       async ({ coords }) => {
         setMapData((prevState) => {
           return {
@@ -174,7 +176,7 @@ export default function HomeScreen({ navigation }) {
           }
         })
       },
-      () => Alert.alert('تأكد من تفعيل اعدادات موقعك الحالي لتطبيق iVan.'),
+      () => {},
       { enableHighAccuracy: true }
     )
 
@@ -206,7 +208,7 @@ export default function HomeScreen({ navigation }) {
       setNotificationData(remoteMessage.data)
       setAlertMessage({
         message: remoteMessage.notification.body,
-        isError: false
+        isError: false,
       })
     })
 
@@ -215,7 +217,7 @@ export default function HomeScreen({ navigation }) {
       setNotificationData(remoteMessage.data)
       setAlertMessage({
         message: remoteMessage.notification.body,
-        isError: false
+        isError: false,
       })
     })
 
@@ -227,7 +229,7 @@ export default function HomeScreen({ navigation }) {
           setNotificationData(remoteMessage.data)
           setAlertMessage({
             message: remoteMessage.notification.body,
-            isError: false
+            isError: false,
           })
         }
       })
@@ -236,12 +238,17 @@ export default function HomeScreen({ navigation }) {
     // you may need to get the APNs token instead for iOS:
     // if(Platform.OS == 'ios') { messaging().getAPNSToken().then(token => { return saveTokenToDatabase(token); }); }
 
-    await configurePushNotification()
+    configurePushNotification()
     configureBackgroundLocation()
 
     setLoading(false)
     return () => {
       setMapData({})
+      setShowAlert(false)
+      setAlertMessage({
+        message: null,
+        isError: false,
+      })
       BackgroundGeolocation.events.forEach((event) =>
         BackgroundGeolocation.removeAllListeners(event)
       )
@@ -319,7 +326,7 @@ export default function HomeScreen({ navigation }) {
         message={alertMessage.message}
         closeOnHardwareBackPress={false}
         showConfirmButton
-        showCancelButton
+        showCancelButton={!alertMessage.isError}
         confirmText="حسنا"
         cancelText="أرفض"
         confirmButtonStyle={{ fontWeight: 'bold' }}

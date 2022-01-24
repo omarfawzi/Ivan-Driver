@@ -15,11 +15,13 @@ import { GOOGLE_API_KEY } from '@env'
 import { theme } from '../core/theme'
 import StatusController from '../api/status'
 import RouteController from '../api/routes'
+import { useAuth } from '../providers/auth'
 
 export default function FindRideScreen({ mapData, onStationChange }) {
-  const { height, width } = Dimensions.get('window')
-  const [active, setActive] = useState(false)
-  const [isLoading, setLoading] = useState(false)
+  const { handleActiveStatus, state } = useAuth()
+  const [active, setActive] = useState(
+    state.active === undefined ? false : state.active
+  )
   const mapRef = useRef()
   const statusController = new StatusController()
   const routeController = new RouteController()
@@ -30,6 +32,7 @@ export default function FindRideScreen({ mapData, onStationChange }) {
     } else {
       await statusController.deactivate()
     }
+    handleActiveStatus(isOn)
     setActive(isOn)
   }
 
@@ -46,8 +49,10 @@ export default function FindRideScreen({ mapData, onStationChange }) {
   }
 
   useEffect(async () => {
-    const status = await statusController.getStatus()
-    setActive(status.active)
+    if (state.active === undefined) {
+      const status = await statusController.getStatus()
+      setActive(status.active)
+    }
     const nextRoute = await routeController.nextRoute()
     if (Object.keys(nextRoute).length > 0) {
       onStationChange(nextRoute)
@@ -57,22 +62,13 @@ export default function FindRideScreen({ mapData, onStationChange }) {
         mapRef.current.animateToRegion(mapData.driver.location)
       }
     }
-    setLoading(false)
+
+    return () => {
+      setActive(false)
+    }
   }, [])
 
-  return isLoading ? (
-    <View
-      style={{
-        justifyContent: 'center',
-        alignItems: 'center',
-        height,
-        width,
-        position: 'absolute',
-      }}
-    >
-      <ActivityIndicator size="large" color={theme.colors.primary} />
-    </View>
-  ) : (
+  return (
     <View style={styles.container}>
       <MapView
         followsUserLocation
