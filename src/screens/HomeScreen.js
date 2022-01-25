@@ -159,6 +159,7 @@ export default function HomeScreen({ navigation }) {
   }
 
   useEffect(async () => {
+    setLoading(true)
     await redirectIfNotAuthenticated(navigation)
     await Location.requestForegroundPermissionsAsync()
     Geolocation.getCurrentPosition(

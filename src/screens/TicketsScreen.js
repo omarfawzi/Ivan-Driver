@@ -23,7 +23,7 @@ export default function TicketsScreen({ mapData }) {
   const [isLoading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const { height, width } = Dimensions.get('window')
-  const [tickets, setTickets] = useState(null)
+  const [tickets, setTickets] = useState([])
   const [pickUpStation, setPickUpStation] = useState(null)
   const [allConfirmed, setAllConfirmed] = useState(false)
   const { handleLogout } = useAuth()
@@ -60,7 +60,6 @@ export default function TicketsScreen({ mapData }) {
       setPickUpStation(null)
     }
     setLoading(false)
-    return result
   }
 
   const collectTicket = async (ticketId) => {
@@ -96,10 +95,10 @@ export default function TicketsScreen({ mapData }) {
     )
   }
 
-  useEffect(() => {
-    getTickets()
+  useEffect(async () => {
+    await getTickets()
     return () => {
-      setTickets(null)
+      setTickets([])
       setPickUpStation(null)
       setLoading(true)
       setRefreshing(false)
@@ -117,7 +116,7 @@ export default function TicketsScreen({ mapData }) {
     >
       <ActivityIndicator size="large" color={theme.colors.primary} />
     </View>
-  ) : !tickets || tickets.length === 0 ? (
+  ) : tickets.length === 0 ? (
     <ScrollView
       refreshControl={
         <RefreshControl
@@ -143,7 +142,6 @@ export default function TicketsScreen({ mapData }) {
         />
       }
       showsVerticalScrollIndicator={false}
-      enableEmptySections
       data={tickets}
       keyExtractor={(item) => {
         return item.id
@@ -165,8 +163,8 @@ export default function TicketsScreen({ mapData }) {
               <Text style={styles.other}>اسم العميل: {item.customer.name}</Text>
               <View
                 style={{
-                  flexDirection: 'row',
-                  alignSelf: 'flex-end',
+                  flexDirection: 'row-reverse',
+                  alignSelf: 'flex-start',
                   paddingTop: 10,
                 }}
               >
@@ -239,8 +237,8 @@ const styles = StyleSheet.create({
     borderColor: '#ebf0f7',
   },
   cardContent: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
     padding: 5,
     flex: 1,
   },
@@ -258,19 +256,19 @@ const styles = StyleSheet.create({
     marginTop: 20,
     backgroundColor: 'white',
     padding: 10,
-    flexDirection: 'row',
+    flexDirection: 'row-reverse',
     borderRadius: 30,
   },
   name: {
     fontSize: 12,
-    alignSelf: 'flex-end',
+    alignSelf: 'flex-start',
     color: theme.colors.primary,
     fontWeight: 'bold',
     paddingBottom: 10,
   },
   other: {
     fontSize: 12,
-    alignSelf: 'flex-end',
+    alignSelf: 'flex-start',
     fontWeight: 'bold',
     paddingBottom: 10,
   },
@@ -278,14 +276,14 @@ const styles = StyleSheet.create({
     width: 105,
     padding: 10,
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     borderRadius: 30,
     backgroundColor: '#82ea59',
     borderWidth: 1,
     color: 'white',
     borderColor: '#dcdcdc',
-    alignSelf: 'flex-end',
+    alignSelf: 'flex-start',
   },
   rejectButton: {
     width: 105,
@@ -305,24 +303,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 10,
     // lineHeight: 26,
-  },
-  locationButton: {
-    marginTop: 5,
-    height: 35,
-    width: 105,
-    padding: 10,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 30,
-    backgroundColor: '#82ea59',
-    borderWidth: 1,
-    color: 'white',
-    borderColor: '#dcdcdc',
-    right: 20,
-  },
-  locationButtonText: {
-    fontWeight: 'bold',
-    fontSize: 12,
   },
 })
