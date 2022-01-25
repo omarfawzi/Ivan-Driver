@@ -58,7 +58,7 @@ export default function FindRideScreen({ mapData, onStationChange }) {
       onStationChange(nextRoute)
     } else {
       onStationChange(null)
-      if (mapRef && mapData && mapData.driver) {
+      if (mapRef && mapRef.current && mapData && mapData.driver) {
         mapRef.current.animateToRegion(mapData.driver.location)
       }
     }
