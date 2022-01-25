@@ -87,10 +87,10 @@ export default function HomeScreen({ navigation }) {
     try {
       const token = await getAuthState()
       if (!token) {
-        navigation.navigate('StartScreen')
+        navigation.navigate('LoginScreen')
       }
     } catch (e) {
-      navigation.navigate('StartScreen')
+      navigation.navigate('LoginScreen')
     }
   }
 

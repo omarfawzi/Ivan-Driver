@@ -13,10 +13,10 @@ export default function LoadingScreen({ navigation }) {
       if (token) {
         navigation.navigate('HomeScreen')
       } else {
-        navigation.navigate('StartScreen')
+        navigation.navigate('LoginScreen')
       }
     } catch (e) {
-      navigation.navigate('StartScreen')
+      navigation.navigate('LoginScreen')
     }
   }
   useEffect(() => {

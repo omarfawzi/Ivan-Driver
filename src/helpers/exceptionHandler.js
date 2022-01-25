@@ -12,6 +12,6 @@ export async function redirectIfUnauthorized(error, navigation, handleLogout) {
 
   navigation.reset({
     index: 0,
-    routes: [{ name: 'StartScreen' }],
+    routes: [{ name: 'LoginScreen' }],
   })
 }

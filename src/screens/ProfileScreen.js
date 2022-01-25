@@ -32,7 +32,7 @@ export default function ProfileScreen({ navigation }) {
       setLoading(false)
       navigation.reset({
         index: 0,
-        routes: [{ name: 'StartScreen' }],
+        routes: [{ name: 'LoginScreen' }],
       })
     } catch (error) {}
   }

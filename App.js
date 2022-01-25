@@ -5,7 +5,6 @@ import { createStackNavigator } from '@react-navigation/stack'
 import { theme } from './src/core/theme'
 
 import {
-  StartScreen,
   LoginScreen,
   HomeScreen,
   LoadingScreen,
@@ -26,7 +25,6 @@ export default function App() {
             }}
           >
             <Stack.Screen name="LoadingScreen" component={LoadingScreen} />
-            <Stack.Screen name="StartScreen" component={StartScreen} />
             <Stack.Screen name="LoginScreen" component={LoginScreen} />
             <Stack.Screen name="HomeScreen" component={HomeScreen} />
           </Stack.Navigator>
