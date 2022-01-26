@@ -161,87 +161,93 @@ export default function HomeScreen({ navigation }) {
   useEffect(async () => {
     setLoading(true)
     await redirectIfNotAuthenticated(navigation)
-    await Location.requestForegroundPermissionsAsync()
-    Geolocation.getCurrentPosition(
-      async ({ coords }) => {
-        setMapData((prevState) => {
-          return {
-            ...prevState,
-            driver: {
-              location: {
-                ...coords,
-                latitudeDelta: 0.002,
-                longitudeDelta: 0.002,
-              },
-            },
-          }
-        })
-      },
-      () => {},
-      { enableHighAccuracy: true }
-    )
-
-    Geolocation.watchPosition(
-      (position) => {
-        setMapData((prevState) => {
-          return {
-            ...prevState,
-            driver: {
-              location: {
-                ...position.coords,
-                latitudeDelta: 0.002,
-                longitudeDelta: 0.002,
-              },
-            },
-          }
-        })
-      },
-      (error) => Alert.alert(JSON.stringify(error)),
-      {
-        enableHighAccuracy: true,
-        maximumAge: 0,
-        distanceFilter: 10,
-      }
-    )
-
-    messaging().onMessage(async (remoteMessage) => {
+    const { status } = await Location.requestForegroundPermissionsAsync()
+    if (status !== 'granted') {
       setShowAlert(true)
-      setNotificationData(remoteMessage.data)
       setAlertMessage({
-        message: remoteMessage.notification.body,
-        isError: false,
+        isError: true,
+        message: 'من فضلك قم بالتأكد من تفعيل خدمة الموقع لتطبيق iVan Driver',
       })
-    })
-
-    messaging().onNotificationOpenedApp((remoteMessage) => {
-      setShowAlert(true)
-      setNotificationData(remoteMessage.data)
-      setAlertMessage({
-        message: remoteMessage.notification.body,
-        isError: false,
-      })
-    })
-
-    messaging()
-      .getInitialNotification()
-      .then((remoteMessage) => {
-        if (remoteMessage) {
-          setShowAlert(true)
-          setNotificationData(remoteMessage.data)
-          setAlertMessage({
-            message: remoteMessage.notification.body,
-            isError: false,
+    } else {
+      Geolocation.getCurrentPosition(
+        async ({ coords }) => {
+          setMapData((prevState) => {
+            return {
+              ...prevState,
+              driver: {
+                location: {
+                  ...coords,
+                  latitudeDelta: 0.002,
+                  longitudeDelta: 0.002,
+                },
+              },
+            }
           })
+        },
+        () => {},
+        { enableHighAccuracy: true }
+      )
+
+      Geolocation.watchPosition(
+        (position) => {
+          setMapData((prevState) => {
+            return {
+              ...prevState,
+              driver: {
+                location: {
+                  ...position.coords,
+                  latitudeDelta: 0.002,
+                  longitudeDelta: 0.002,
+                },
+              },
+            }
+          })
+        },
+        (error) => Alert.alert(JSON.stringify(error)),
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0,
+          distanceFilter: 10,
         }
+      )
+      messaging().onMessage(async (remoteMessage) => {
+        setShowAlert(true)
+        setNotificationData(remoteMessage.data)
+        setAlertMessage({
+          message: remoteMessage.notification.body,
+          isError: false,
+        })
       })
 
-    // If using other push notification providers (ie Amazon SNS, etc)
-    // you may need to get the APNs token instead for iOS:
-    // if(Platform.OS == 'ios') { messaging().getAPNSToken().then(token => { return saveTokenToDatabase(token); }); }
+      messaging().onNotificationOpenedApp((remoteMessage) => {
+        setShowAlert(true)
+        setNotificationData(remoteMessage.data)
+        setAlertMessage({
+          message: remoteMessage.notification.body,
+          isError: false,
+        })
+      })
 
-    configurePushNotification()
-    configureBackgroundLocation()
+      messaging()
+        .getInitialNotification()
+        .then((remoteMessage) => {
+          if (remoteMessage) {
+            setShowAlert(true)
+            setNotificationData(remoteMessage.data)
+            setAlertMessage({
+              message: remoteMessage.notification.body,
+              isError: false,
+            })
+          }
+        })
 
+      // If using other push notification providers (ie Amazon SNS, etc)
+      // you may need to get the APNs token instead for iOS:
+      // if(Platform.OS == 'ios') { messaging().getAPNSToken().then(token => { return saveTokenToDatabase(token); }); }
+
+      await configurePushNotification()
+      await configureBackgroundLocation()
+    }
     setLoading(false)
     return () => {
       setMapData({})
