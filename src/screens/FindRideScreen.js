@@ -141,6 +141,7 @@ export default function FindRideScreen({
               )
             }}
             waypoints={mapData.station.waypoints}
+            resetOnChange
           />
         ) : null}
       </MapView>
