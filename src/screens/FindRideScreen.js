@@ -23,7 +23,7 @@ export default function FindRideScreen({
 }) {
   const { handleActiveStatus, state, handleLogout } = useAuth()
   const [active, setActive] = useState(
-    state.active === undefined ? false : state.active
+    state.active === null ? false : state.active
   )
   const mapRef = useRef()
   const statusController = new StatusController()
@@ -63,7 +63,7 @@ export default function FindRideScreen({
 
   useEffect(async () => {
     try {
-      if (state.active === undefined) {
+      if (state.active === null) {
         const status = await statusController.getStatus()
         setActive(status.active)
       }
