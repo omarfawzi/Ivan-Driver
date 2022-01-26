@@ -19,7 +19,7 @@ import TicketController from '../api/tickets'
 
 const DISTANCE_LIMIT_IN_METERS = 100
 
-export default function TicketsScreen({ mapData }) {
+export default function TicketsScreen({ navigation, mapData }) {
   const [isLoading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const { height, width } = Dimensions.get('window')
@@ -41,46 +41,90 @@ export default function TicketsScreen({ mapData }) {
   }
 
   const getTickets = async () => {
-    const result = await ticketController.getTickets()
-    if (result && result.tickets) {
-      setTickets(result.tickets)
-      let confirmed = true
-      result.tickets.forEach((ticket) => {
-        if (ticket.status === 'issued') {
-          confirmed = false
-        }
-      })
-      setAllConfirmed(confirmed)
-    } else {
-      setTickets([])
+    try {
+      const result = await ticketController.getTickets()
+      if (result && result.tickets) {
+        setTickets(result.tickets)
+        let confirmed = true
+        result.tickets.forEach((ticket) => {
+          if (ticket.status === 'issued') {
+            confirmed = false
+          }
+        })
+        setAllConfirmed(confirmed)
+      } else {
+        setTickets([])
+      }
+      if (result && result.pickUpStation) {
+        setPickUpStation(result.pickUpStation)
+      } else {
+        setPickUpStation(null)
+      }
+      setLoading(false)
+    } catch (e) {
+      setLoading(false)
+      if (e.status === 401) {
+        await handleLogout()
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'LoginScreen' }],
+        })
+      }
     }
-    if (result && result.pickUpStation) {
-      setPickUpStation(result.pickUpStation)
-    } else {
-      setPickUpStation(null)
-    }
-    setLoading(false)
   }
 
   const collectTicket = async (ticketId) => {
-    setLoading(true)
-    await ticketController.collectTicket(ticketId)
-    await getTickets()
-    setLoading(false)
+    try {
+      setLoading(true)
+      await ticketController.collectTicket(ticketId)
+      await getTickets()
+      setLoading(false)
+    } catch (e) {
+      setLoading(false)
+      if (e.status === 401) {
+        await handleLogout()
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'LoginScreen' }],
+        })
+      }
+    }
   }
 
   const rejectTicket = async (ticketId) => {
-    setLoading(true)
-    await ticketController.rejectTicket(ticketId)
-    await getTickets()
-    setLoading(false)
+    try {
+      setLoading(true)
+      await ticketController.rejectTicket(ticketId)
+      await getTickets()
+      setLoading(false)
+    } catch (e) {
+      setLoading(false)
+      if (e.status === 401) {
+        await handleLogout()
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'LoginScreen' }],
+        })
+      }
+    }
   }
 
   const confirmTicket = async (ticketId) => {
-    setLoading(true)
-    await ticketController.confirmTicket(ticketId)
-    await getTickets()
-    setLoading(false)
+    try {
+      setLoading(true)
+      await ticketController.confirmTicket(ticketId)
+      await getTickets()
+      setLoading(false)
+    } catch (e) {
+      setLoading(false)
+      if (e.status === 401) {
+        await handleLogout()
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'LoginScreen' }],
+        })
+      }
+    }
   }
 
   const onRefresh = async () => {

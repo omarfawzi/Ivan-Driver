@@ -16,8 +16,12 @@ import StatusController from '../api/status'
 import RouteController from '../api/routes'
 import { useAuth } from '../providers/auth'
 
-export default function FindRideScreen({ mapData, onStationChange }) {
-  const { handleActiveStatus, state } = useAuth()
+export default function FindRideScreen({
+  navigation,
+  mapData,
+  onStationChange,
+}) {
+  const { handleActiveStatus, state, handleLogout } = useAuth()
   const [active, setActive] = useState(
     state.active === undefined ? false : state.active
   )
@@ -26,13 +30,23 @@ export default function FindRideScreen({ mapData, onStationChange }) {
   const routeController = new RouteController()
 
   const toggleStatus = async (isOn) => {
-    if (isOn) {
-      await statusController.activate()
-    } else {
-      await statusController.deactivate()
+    try {
+      if (isOn) {
+        await statusController.activate()
+      } else {
+        await statusController.deactivate()
+      }
+      handleActiveStatus(isOn)
+      setActive(isOn)
+    } catch (e) {
+      if (e.status === 401) {
+        await handleLogout()
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'LoginScreen' }],
+        })
+      }
     }
-    handleActiveStatus(isOn)
-    setActive(isOn)
   }
 
   const onMapsPress = (station) => {
@@ -48,17 +62,27 @@ export default function FindRideScreen({ mapData, onStationChange }) {
   }
 
   useEffect(async () => {
-    if (state.active === undefined) {
-      const status = await statusController.getStatus()
-      setActive(status.active)
-    }
-    const nextRoute = await routeController.nextRoute()
-    if (Object.keys(nextRoute).length > 0) {
-      onStationChange(nextRoute)
-    } else {
-      onStationChange(null)
-      if (mapRef && mapRef.current && mapData && mapData.driver) {
-        mapRef.current.animateToRegion(mapData.driver.location)
+    try {
+      if (state.active === undefined) {
+        const status = await statusController.getStatus()
+        setActive(status.active)
+      }
+      const nextRoute = await routeController.nextRoute()
+      if (Object.keys(nextRoute).length > 0) {
+        onStationChange(nextRoute)
+      } else {
+        onStationChange(null)
+        if (mapRef && mapRef.current && mapData && mapData.driver) {
+          mapRef.current.animateToRegion(mapData.driver.location)
+        }
+      }
+    } catch (e) {
+      if (e.status === 401) {
+        await handleLogout()
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'LoginScreen' }],
+        })
       }
     }
 
