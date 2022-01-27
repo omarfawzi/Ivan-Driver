@@ -109,7 +109,16 @@ export default function FindRideScreen({
         maxZoomLevel={20}
         provider={PROVIDER_GOOGLE}
         style={styles.map}
-        initialRegion={mapData.driver ? mapData.driver.location : null}
+        initialRegion={
+          mapData.driver
+            ? mapData.driver.location
+            : {
+                latitude: 29.980034312576823,
+                longitude: 31.104741096496586,
+                latitudeDelta: 0.1,
+                longitudeDelta: 0.1,
+              }
+        }
         ref={mapRef}
       >
         {mapData.station ? (
