@@ -11,6 +11,7 @@ import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 import ToggleSwitch from 'toggle-switch-react-native'
 import MapViewDirections from 'react-native-maps-directions'
 import { GOOGLE_API_KEY } from '@env'
+import BackgroundGeolocation from '@mauron85/react-native-background-geolocation'
 import { theme } from '../core/theme'
 import StatusController from '../api/status'
 import RouteController from '../api/routes'
@@ -33,8 +34,10 @@ export default function FindRideScreen({
     try {
       if (isOn) {
         await statusController.activate()
+        BackgroundGeolocation.start()
       } else {
         await statusController.deactivate()
+        BackgroundGeolocation.stop()
       }
       handleActiveStatus(isOn)
       setActive(isOn)
@@ -66,6 +69,11 @@ export default function FindRideScreen({
       if (state.active === null) {
         const status = await statusController.getStatus()
         setActive(status.active)
+        if (status.active) {
+          BackgroundGeolocation.start()
+        } else {
+          BackgroundGeolocation.stop()
+        }
       }
       const nextRoute = await routeController.nextRoute()
       if (Object.keys(nextRoute).length > 0) {

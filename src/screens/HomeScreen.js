@@ -122,9 +122,8 @@ export default function HomeScreen({ navigation }) {
         longitude: '@longitude',
       },
       maxLocations: 1,
+      saveBatteryOnBackground: true,
     })
-
-    BackgroundGeolocation.start()
   }
 
   const configurePushNotification = async () => {
