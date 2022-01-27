@@ -244,8 +244,8 @@ export default function HomeScreen({ navigation }) {
       // you may need to get the APNs token instead for iOS:
       // if(Platform.OS == 'ios') { messaging().getAPNSToken().then(token => { return saveTokenToDatabase(token); }); }
 
-      await configurePushNotification()
-      await configureBackgroundLocation()
+      configurePushNotification()
+      configureBackgroundLocation()
     }
     setLoading(false)
     return () => {
