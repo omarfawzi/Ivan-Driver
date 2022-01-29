@@ -6,6 +6,8 @@ import {
   Image,
   TouchableOpacity,
   Linking,
+  Platform,
+  PixelRatio,
 } from 'react-native'
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 import ToggleSwitch from 'toggle-switch-react-native'
@@ -152,7 +154,14 @@ export default function FindRideScreen({
               mapRef.current.fitToCoordinates(
                 [mapData.driver.location, mapData.station],
                 {
-                  edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+                  edgePadding: {
+                    top:
+                      Platform.OS === 'ios' ? 100 : PixelRatio.get() * 100 - 50,
+                    right: 0,
+                    left: 0,
+                    bottom:
+                      Platform.OS === 'ios' ? 100 : PixelRatio.get() * 100 - 50,
+                  },
                   animated: true,
                 }
               )

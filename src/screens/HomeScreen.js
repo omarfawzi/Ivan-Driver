@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import {
   View,
-  Alert,
   ActivityIndicator,
   Dimensions,
   Platform,
@@ -54,10 +53,11 @@ export default function HomeScreen({ navigation }) {
   }
 
   const onCancelButtonPressed = async () => {
+    onStationChange(null)
+    setShowAlert(false)
     if (!alertMessage.isError && notificationData.type === 'driver_selection') {
       await orderController.deny(notificationData.orderId)
     }
-    setShowAlert(false)
   }
 
   function onStationChange(station) {
@@ -99,8 +99,8 @@ export default function HomeScreen({ navigation }) {
       desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
       stationaryRadius: 50,
       distanceFilter: 100,
-      notificationTitle: 'iVan Location Task',
-      notificationText: 'Running...',
+      notificationTitle: 'iVan Driver',
+      notificationText: 'جاري ارسال موقعك الحالي...',
       debug: false,
       startOnBoot: false,
       stopOnTerminate: false,
@@ -202,7 +202,7 @@ export default function HomeScreen({ navigation }) {
             }
           })
         },
-        (error) => Alert.alert(JSON.stringify(error)),
+        (error) => {},
         {
           enableHighAccuracy: true,
           maximumAge: 0,
@@ -212,6 +212,7 @@ export default function HomeScreen({ navigation }) {
       messaging().onMessage(async (remoteMessage) => {
         setShowAlert(true)
         setNotificationData(remoteMessage.data)
+        onStationChange(remoteMessage.data)
         setAlertMessage({
           message: remoteMessage.notification.body,
           isError: false,
@@ -221,6 +222,7 @@ export default function HomeScreen({ navigation }) {
       messaging().onNotificationOpenedApp((remoteMessage) => {
         setShowAlert(true)
         setNotificationData(remoteMessage.data)
+        onStationChange(remoteMessage.data)
         setAlertMessage({
           message: remoteMessage.notification.body,
           isError: false,
@@ -233,6 +235,7 @@ export default function HomeScreen({ navigation }) {
           if (remoteMessage) {
             setShowAlert(true)
             setNotificationData(remoteMessage.data)
+            onStationChange(remoteMessage.data)
             setAlertMessage({
               message: remoteMessage.notification.body,
               isError: false,
